@@ -4,24 +4,36 @@ A searchable, single-page reference for Vanilla Emacs keybindings with Vertico +
 
 ## Categories
 
-- Navigation & Files
-- Search & Movement
-- Window & Buffer Management
-- LSP & Code
-- Context Actions (Embark)
-- Projects & Treemacs Workspaces
-- Git (Magit)
-- Org Mode
-- Claude Code IDE
-- Markdown
 - Essential Emacs
+- Editing & Text
+- Navigation & Files
+- Search & Replace
+- Window Management
+- Projects & Treemacs
+- LSP & Code (Eglot)
+- Context Actions (Embark)
+- Git (Magit)
+- Magit Status Buffer
+- Email (mu4e)
+- Org Mode — Structure
+- Org Mode — TODO & Scheduling
+- Org Mode — Agenda
+- Org Mode — Lists & Tables
+- Org Mode — Source Blocks & Export
+- Org Mode — Clocking & Archive
+- Markdown
+- Claude Code IDE
+- Help System
+- Terminal
 
-## Running locally
+## Development
 
 ```bash
 npm install
 npm run dev
 ```
+
+This project uses [direnv](https://direnv.net/) with a Nix flake dev shell. If you have direnv and Nix installed, `cd` into the project and the environment (with Node.js) will be loaded automatically.
 
 ## NixOS service
 
