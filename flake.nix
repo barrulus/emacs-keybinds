@@ -16,7 +16,7 @@
         version = "0.0.1";
         src = ./.;
 
-        npmDepsHash = "sha256-9U0yhP7UZnTa1xDCC8mEHJgXGKvJbYg1ohLduhoLvdk=";
+        npmDepsHash = "sha256-OB8PVU1qypOL73jyopEzffprzWfuErj0rz4FKIQ8uYc=";
 
         buildPhase = ''
           npm run build
@@ -26,6 +26,12 @@
           mkdir -p $out/share/emacs-keybinds
           cp -r dist/* $out/share/emacs-keybinds/
         '';
+      };
+
+      devShells.${system}.default = pkgs.mkShell {
+        buildInputs = with pkgs; [
+          nodejs
+        ];
       };
 
       nixosModules.default = { config, lib, pkgs, ... }:
