@@ -25,6 +25,19 @@ interface Category {
   note?: string;
 }
 
+interface WorkflowStep {
+  keys?: string;
+  action: string;
+  note?: string;
+}
+
+interface Workflow {
+  name: string;
+  color: string;
+  steps: WorkflowStep[];
+  note?: string;
+}
+
 const CATEGORIES: Category[] = [
   {
     name: 'Essential Emacs',
@@ -374,6 +387,172 @@ const CATEGORIES: Category[] = [
   },
 ];
 
+const WORKFLOWS: Workflow[] = [
+  {
+    name: 'Open a file',
+    color: COLORS.blue,
+    steps: [
+      { keys: 'C-x C-f', action: 'Invoke find-file' },
+      { action: 'Type / tab-complete path in the minibuffer' },
+      { keys: 'RET', action: 'Open (creates the file if path does not exist)' },
+    ],
+    note: 'Inside a project, C-c f f or C-x p f is faster — fuzzy-matches tracked files',
+  },
+  {
+    name: 'Save a file',
+    color: COLORS.blue,
+    steps: [
+      { keys: 'C-x C-s', action: 'Save current buffer (apheleia auto-formats on save)' },
+    ],
+    note: 'C-x s saves every modified buffer, prompting per file',
+  },
+  {
+    name: 'Save and close a file',
+    color: COLORS.blue,
+    steps: [
+      { keys: 'C-x C-s', action: 'Save buffer' },
+      { keys: 'C-x k RET', action: 'Kill buffer (RET accepts the current buffer name)' },
+    ],
+  },
+  {
+    name: 'Close a file without saving',
+    color: COLORS.blue,
+    steps: [
+      { keys: 'C-x k RET', action: 'Kill buffer' },
+      { action: 'If prompted about unsaved changes, answer n (no) then yes to discard' },
+    ],
+    note: 'M-x revert-buffer reloads from disk instead of killing — useful to undo all edits',
+  },
+  {
+    name: 'Close all project files',
+    color: COLORS.blue,
+    steps: [
+      { keys: 'C-x p k', action: 'Kill all buffers belonging to current project' },
+    ],
+    note: 'M-x kill-some-buffers walks every buffer and asks per one',
+  },
+  {
+    name: 'Select text (mark a region)',
+    color: COLORS.green,
+    steps: [
+      { action: 'Move cursor to the start of what you want to select' },
+      { keys: 'C-SPC', action: 'Set mark — begin the selection' },
+      { action: 'Move cursor to the end (arrows, C-f/C-b, C-n/C-p, M-f/M-b by word)' },
+    ],
+    note: 'C-x C-x swaps point and mark — jumps to the other end of the region',
+  },
+  {
+    name: 'Cut, copy, paste (kill ring)',
+    color: COLORS.green,
+    steps: [
+      { action: 'Select a region (see "Select text")' },
+      { keys: 'C-w', action: 'Cut (kill region into kill ring)' },
+      { keys: 'M-w', action: 'Copy region to kill ring (no deletion)' },
+      { action: 'Move cursor to destination' },
+      { keys: 'C-y', action: 'Paste (yank) the most recent kill' },
+      { keys: 'M-y', action: 'Cycle to older kills (consult shows the ring)' },
+    ],
+  },
+  {
+    name: 'Paste from system clipboard',
+    color: COLORS.green,
+    steps: [
+      { action: 'Copy in the external app (browser, terminal, etc.)' },
+      { keys: 'C-y', action: 'Yank — Emacs pulls the system clipboard into the kill ring first' },
+    ],
+    note: 'If recent internal kills are on top, press M-y after C-y to cycle back to the clipboard entry',
+  },
+  {
+    name: 'Copy to system clipboard',
+    color: COLORS.green,
+    steps: [
+      { action: 'Select a region' },
+      { keys: 'M-w', action: 'Copy — region goes to kill ring and system clipboard together' },
+    ],
+    note: 'Works because select-enable-clipboard is the default. External apps can now paste it',
+  },
+  {
+    name: 'Move selected text',
+    color: COLORS.green,
+    steps: [
+      { action: 'Select the text you want to move' },
+      { keys: 'C-w', action: 'Cut it' },
+      { action: 'Move cursor to the destination' },
+      { keys: 'C-y', action: 'Paste it back in' },
+    ],
+    note: 'For moving a whole line, C-a C-k C-k cuts line + newline; navigate and C-y',
+  },
+  {
+    name: 'Undo and redo',
+    color: COLORS.green,
+    steps: [
+      { keys: 'C-/', action: 'Undo (also C-_ or C-x u for the short form)' },
+      { keys: 'C-?', action: 'Redo (undo-redo — steps forward through the undo history)' },
+      { keys: 'C-x u', action: 'Open undo-tree visualiser for branching history' },
+    ],
+  },
+  {
+    name: 'Move a file between directories',
+    color: COLORS.peach,
+    steps: [
+      { keys: 'C-x d', action: 'Open Dired on the source directory' },
+      { action: 'Move cursor onto the file' },
+      { keys: 'R', action: 'Rename — the prompt accepts a full path in another directory' },
+      { action: 'Type the destination path and press RET' },
+    ],
+    note: 'Tip: with two Dired windows open, R defaults the target to the other window\'s directory',
+  },
+  {
+    name: 'Rename a file',
+    color: COLORS.peach,
+    steps: [
+      { keys: 'C-x d', action: 'Open Dired on the directory' },
+      { action: 'Move cursor onto the file' },
+      { keys: 'R', action: 'Rename — type the new name, RET' },
+    ],
+    note: 'From an open buffer: M-x rename-visited-file renames the file on disk and the buffer',
+  },
+  {
+    name: 'Delete a file',
+    color: COLORS.peach,
+    steps: [
+      { keys: 'C-x d', action: 'Open Dired on the directory' },
+      { keys: 'd', action: 'Flag file for deletion (cursor moves to next line)' },
+      { keys: 'x', action: 'Execute — confirms and removes flagged files' },
+    ],
+    note: 'u unflags a line. D deletes immediately without the flag/execute dance',
+  },
+  {
+    name: 'Create a new file in a directory',
+    color: COLORS.peach,
+    steps: [
+      { keys: 'C-x C-f', action: 'Invoke find-file' },
+      { action: 'Type the new path (tab-complete the directory, then type the filename)' },
+      { keys: 'RET', action: 'Opens an empty buffer — file is created on first save' },
+      { keys: 'C-x C-s', action: 'Save to actually write the file to disk' },
+    ],
+    note: 'In Dired: + creates a subdirectory. Files are created via find-file',
+  },
+  {
+    name: 'Switch between open files',
+    color: COLORS.mauve,
+    steps: [
+      { keys: 'C-x b', action: 'Switch buffer (consult — fuzzy match, preview)' },
+      { action: 'Type part of the filename, RET to select' },
+    ],
+    note: 'C-x C-b opens ibuffer for a full list view. C-c f b gives a richer picker',
+  },
+  {
+    name: 'Find a file in the project',
+    color: COLORS.mauve,
+    steps: [
+      { keys: 'C-c f f', action: 'Find file in project (fuzzy match across tracked files)' },
+      { action: 'Type part of the filename, RET' },
+    ],
+    note: 'C-x p f is the vanilla project.el equivalent. C-c f r jumps to recent files',
+  },
+];
+
 const MODIFIERS = [
   { key: 'C-', label: 'Ctrl', desc: 'Control key' },
   { key: 'M-', label: 'Alt', desc: 'Meta key — Alt on PC, Option on Mac' },
@@ -387,9 +566,12 @@ const MODIFIERS = [
   { key: '<escape>', label: 'Escape', desc: 'Escape (also equivalent to M- prefix when tapped)' },
 ];
 
+type View = 'keybindings' | 'workflows';
+
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [view, setView] = useState<View>('keybindings');
 
   const filteredCategories = CATEGORIES.filter((category) => {
     if (selectedCategory !== 'All' && category.name !== selectedCategory) {
@@ -414,6 +596,18 @@ export default function App() {
         )
       : category.bindings,
   }));
+
+  const query = searchQuery.toLowerCase();
+  const filteredWorkflows = WORKFLOWS.filter((workflow) => {
+    if (!searchQuery) return true;
+    if (workflow.name.toLowerCase().includes(query)) return true;
+    return workflow.steps.some(
+      (step) =>
+        step.action.toLowerCase().includes(query) ||
+        (step.keys?.toLowerCase().includes(query) ?? false) ||
+        (step.note?.toLowerCase().includes(query) ?? false)
+    );
+  });
 
   const highlightText = (text: string, query: string) => {
     if (!query) return text;
@@ -457,6 +651,36 @@ export default function App() {
 
         <div
           style={{
+            display: 'flex',
+            gap: '0.5rem',
+            marginBottom: '1rem',
+          }}
+        >
+          {(['keybindings', 'workflows'] as View[]).map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              style={{
+                padding: '0.6rem 1.25rem',
+                borderRadius: '6px',
+                border: 'none',
+                backgroundColor: view === v ? COLORS.mauve : COLORS.surface,
+                color: view === v ? COLORS.base : COLORS.text,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '0.8rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textTransform: 'capitalize',
+                transition: 'all 0.2s',
+              }}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+
+        <div
+          style={{
             backgroundColor: COLORS.surface,
             padding: '0.75rem',
             borderRadius: '8px',
@@ -465,7 +689,7 @@ export default function App() {
         >
           <input
             type="text"
-            placeholder="Search keybindings..."
+            placeholder={view === 'keybindings' ? 'Search keybindings...' : 'Search workflows...'}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
@@ -488,6 +712,7 @@ export default function App() {
           />
         </div>
 
+        {view === 'keybindings' && (
         <div
           style={{
             display: 'flex',
@@ -535,7 +760,9 @@ export default function App() {
             </button>
           ))}
         </div>
+        )}
 
+        {view === 'keybindings' && (
         <div
           style={{
             display: 'grid',
@@ -629,6 +856,133 @@ export default function App() {
             </div>
           ))}
         </div>
+        )}
+
+        {view === 'workflows' && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
+            gap: '1rem',
+          }}
+        >
+          {filteredWorkflows.map((workflow) => (
+            <div
+              key={workflow.name}
+              style={{
+                backgroundColor: COLORS.surface,
+                borderRadius: '8px',
+                padding: '1.25rem',
+                border: `2px solid transparent`,
+                transition: 'border-color 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = workflow.color;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'transparent';
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  marginBottom: '0.75rem',
+                  color: workflow.color,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                <span
+                  style={{
+                    width: '4px',
+                    height: '20px',
+                    backgroundColor: workflow.color,
+                    borderRadius: '2px',
+                  }}
+                />
+                {highlightText(workflow.name, searchQuery)}
+              </h3>
+              <ol
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.4rem',
+                  margin: 0,
+                  paddingLeft: '1.25rem',
+                  listStyle: 'decimal',
+                }}
+              >
+                {workflow.steps.map((step, idx) => (
+                  <li
+                    key={idx}
+                    style={{
+                      fontSize: '0.75rem',
+                      color: COLORS.text,
+                      paddingLeft: '0.25rem',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'baseline',
+                        gap: '0.5rem',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      {step.keys && (
+                        <code
+                          style={{
+                            color: workflow.color,
+                            fontWeight: '600',
+                            backgroundColor: COLORS.base,
+                            padding: '0.15rem 0.4rem',
+                            borderRadius: '4px',
+                            fontSize: '0.72rem',
+                          }}
+                        >
+                          {highlightText(step.keys, searchQuery)}
+                        </code>
+                      )}
+                      <span style={{ flex: 1 }}>
+                        {highlightText(step.action, searchQuery)}
+                      </span>
+                    </div>
+                    {step.note && (
+                      <div
+                        style={{
+                          marginTop: '0.2rem',
+                          fontSize: '0.68rem',
+                          color: COLORS.subtext,
+                          fontStyle: 'italic',
+                        }}
+                      >
+                        {highlightText(step.note, searchQuery)}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ol>
+              {workflow.note && (
+                <div
+                  style={{
+                    marginTop: '0.75rem',
+                    padding: '0.5rem',
+                    backgroundColor: COLORS.base,
+                    borderRadius: '4px',
+                    fontSize: '0.7rem',
+                    color: COLORS.subtext,
+                    fontStyle: 'italic',
+                  }}
+                >
+                  {highlightText(workflow.note, searchQuery)}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        )}
 
         <div
           style={{
